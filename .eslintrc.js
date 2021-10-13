@@ -32,5 +32,7 @@ module.exports = {
     "react/button-has-type":0,
     "no-alert":0,
     "no-lone-blocks":0,
+    "no-plusplus": 0,
+    "no-const-assign": 0,
   },
 };

@@ -20,6 +20,11 @@ const Center = styled.div`
   align-items: center;
 `;
 
+const TheSum = styled.div`
+  margin-left: 10px;
+  color: papayawhip;
+`;
+
 function App() {
   const [product, setProduct] = useState([]);
   const data = {
@@ -27,13 +32,8 @@ function App() {
     sum: '',
     name: '',
   };
-
   const [state, setState] = useState(data);
   const { cost, sum, name } = state;
-  const getProduct = async () => {
-    const result = await axios.get('http://localhost:4000/api/expenses');
-    setProduct(result.data);
-  };
 
   const clearInputs = () => {
     setState({
@@ -41,6 +41,21 @@ function App() {
       cost: '',
       name: '',
     });
+  };
+
+  // Þegar ég er að reikna út heildartöluna, þá er functionið alltaf einu skrefi á eftir!
+  // hvernig væri betra að gera þettta ??
+
+  const getSum = () => {
+    const result = product.reduce((total, curr) => total + curr.cost, 0);
+    setState({ ...state, sum: result });
+  };
+
+  const getProduct = async () => {
+    const result = await axios.get('http://localhost:4000/api/expenses');
+    setProduct(result.data);
+    clearInputs();
+    getSum();
   };
 
   const addTo = async (e) => {
@@ -52,8 +67,8 @@ function App() {
         cost,
       }
     );
+    getSum();
     getProduct();
-    setState({ ...state, cost, sum: cost + sum });
   };
 
   const handleChange = (event) => {
@@ -75,9 +90,8 @@ function App() {
   };
 
   useEffect(() => {
-    clearInputs();
     getProduct();
-  }, [sum]);
+  }, []);
 
   return (
     <Center>
@@ -85,6 +99,10 @@ function App() {
         <NameInput name={name} onChange={handleChange} />
         <CostInput cost={cost} onChange={changeNumber} />
         <Button onAdd={addTo} />
+        <TheSum>
+          <div>Amount: {sum}</div>
+          <div>List Lenght: {product.length}</div>
+        </TheSum>
       </Wrapper>
       <TheList list={product} onClick={removeExpense} />
     </Center>
